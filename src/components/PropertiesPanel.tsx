@@ -18,8 +18,14 @@ const SectionTitle: React.FC<{ icon: LucideIcon; title: string }> = ({ icon: Ico
   </div>
 );
 
+import { 
+  AlignLeft, AlignCenter, AlignRight, AlignStartVertical as AlignTop, 
+  AlignCenterVertical as AlignMiddle, AlignEndVertical as AlignBottom,
+  ChevronUp, ChevronDown, Layers
+} from 'lucide-react';
+
 export const PropertiesPanel: React.FC = () => {
-  const { elements, selectedElementId, updateElement } = useEditorStore();
+  const { elements, selectedElementId, updateElement, alignElement, bringToFront, sendToBack } = useEditorStore();
 
   const selectedElement = elements.find((el) => el.id === selectedElementId);
 
@@ -152,6 +158,28 @@ export const PropertiesPanel: React.FC = () => {
               onChange={(e) => handleChange('rotation', parseInt(e.target.value))}
               style={{ width: '100%', accentColor: 'var(--accent-primary)' }}
             />
+          </div>
+        </section>
+
+        {/* Arrangement Section */}
+        <section>
+          <SectionTitle icon={Layers} title="Arrangement" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+            <button onClick={() => alignElement(selectedElement.id, 'left')} className="align-btn" title="Align Left"><AlignLeft size={16} /></button>
+            <button onClick={() => alignElement(selectedElement.id, 'center')} className="align-btn" title="Align Center"><AlignCenter size={16} /></button>
+            <button onClick={() => alignElement(selectedElement.id, 'right')} className="align-btn" title="Align Right"><AlignRight size={16} /></button>
+            <button onClick={() => alignElement(selectedElement.id, 'top')} className="align-btn" title="Align Top"><AlignTop size={16} /></button>
+            <button onClick={() => alignElement(selectedElement.id, 'middle')} className="align-btn" title="Align Middle"><AlignMiddle size={16} /></button>
+            <button onClick={() => alignElement(selectedElement.id, 'bottom')} className="align-btn" title="Align Bottom"><AlignBottom size={16} /></button>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+            <button onClick={() => bringToFront(selectedElement.id)} className="align-btn" style={{ flex: 1, gap: '4px' }}>
+              <ChevronUp size={16} /> Bring to Front
+            </button>
+            <button onClick={() => sendToBack(selectedElement.id)} className="align-btn" style={{ flex: 1, gap: '4px' }}>
+              <ChevronDown size={16} /> Send to Back
+            </button>
           </div>
         </section>
 

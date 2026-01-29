@@ -1,29 +1,31 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, Palette, Home, Layout, FolderOpen, Image as ImageIcon, Video, 
+  Sparkles, Palette, Home, Layout, FolderOpen, Image as ImageIcon, 
   Settings, HelpCircle, Search, Plus, Bell, User 
 } from 'lucide-react';
+import { TemplatePreview } from './TemplatePreview';
+import { templates } from '../data/templates';
+import { type Template } from '../store/editorStore';
 
 interface LandingPageProps {
   onStartDesigning: () => void;
+  onLoadTemplate: (template: Template) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onStartDesigning }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onStartDesigning, onLoadTemplate }) => {
   const [searchQuery, setSearchQuery] = useState('');
-
-  const recentProjects = [
-    { id: 1, name: 'Brand Identity', thumbnail: '#667eea', size: '1080×1080', date: '2h ago' },
-    { id: 2, name: 'Summer Campaign', thumbnail: '#f093fb', size: '1280×720', date: '5h ago' },
-    { id: 3, name: 'Product Launch', thumbnail: '#4facfe', size: '1920×1080', date: '1d ago' },
-  ];
+  const [selectedPreview, setSelectedPreview] = useState<Template | null>(null);
 
   const designCategories = [
-    { icon: ImageIcon, label: 'Social Media', color: '#667eea' },
-    { icon: Video, label: 'Video', color: '#f5576c' },
-    { icon: Layout, label: 'Presentation', color: '#4facfe' },
-    { icon: ImageIcon, label: 'Print', color: '#43e97b' },
-    { icon: Plus, label: 'More', color: '#8b5cf6' },
+    { id: 'social', icon: ImageIcon, label: 'Social Media', color: '#667eea' },
+    { id: 'presentation', icon: Layout, label: 'Presentation', color: '#4facfe' },
+    { id: 'logo', icon: Palette, label: 'Logo', color: '#f5576c' },
+    { id: 'poster', icon: ImageIcon, label: 'Poster', color: '#43e97b' },
+    { id: 'document', icon: Plus, label: 'Document', color: '#8b5cf6' },
   ];
+
+  const recentTemplates = templates.slice(0, 3);
+  const recommendedTemplates = templates.slice(3, 6);
 
   return (
     <div style={{
@@ -234,7 +236,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartDesigning }) =>
           </div>
 
           <div style={{ display: 'flex', gap: '24px', overflowX: 'auto', paddingBottom: '12px' }}>
-            {recentProjects.map((p, i) => (
+            {recentTemplates.map((p, i) => (
               <div key={i} style={{ 
                 minWidth: '220px', 
                 background: 'var(--bg-elevated)', 
@@ -242,13 +244,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartDesigning }) =>
                 border: '1px solid var(--border-primary)',
                 cursor: 'pointer',
                 overflow: 'hidden',
-              }} onClick={onStartDesigning} className="hover-lift">
-                <div style={{ height: '140px', background: p.thumbnail, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700 }}>
+              }} onClick={() => setSelectedPreview(p)} className="hover-lift">
+                <div style={{ 
+                  height: '140px', 
+                  background: p.elements.find(el => el.type === 'rectangle')?.fill || '#8b5cf6', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: 'white', 
+                  fontWeight: 700 
+                }}>
                   {p.name}
                 </div>
                 <div style={{ padding: '12px' }}>
                   <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{p.name}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{p.size} • {p.date}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{p.width}×{p.height}</div>
                 </div>
               </div>
             ))}
@@ -259,27 +269,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartDesigning }) =>
         <div style={{ padding: '0 32px 60px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px' }}>Try something new</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-             {[
-               { title: 'Instagram Post', desc: 'Engage your followers', icon: ImageIcon },
-               { title: 'Presentation', desc: 'Impress your audience', icon: Layout },
-               { title: 'Video Record', desc: 'Create cinematic stories', icon: Video },
-             ].map((item, i) => (
+             {recommendedTemplates.map((item, i) => (
                <div key={i} style={{ 
                  display: 'flex', gap: '16px', padding: '20px', background: 'var(--bg-elevated)', 
                  borderRadius: '16px', border: '1px solid var(--border-primary)', cursor: 'pointer' 
-               }} className="hover-lift" onClick={onStartDesigning}>
+               }} className="hover-lift" onClick={() => setSelectedPreview(item)}>
                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)' }}>
-                   <item.icon size={24} />
+                   <Layout size={24} />
                  </div>
                  <div>
-                   <div style={{ fontWeight: 700, marginBottom: '4px' }}>{item.title}</div>
-                   <div style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>{item.desc}</div>
+                   <div style={{ fontWeight: 700, marginBottom: '4px' }}>{item.name}</div>
+                   <div style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>{item.category}</div>
                  </div>
                </div>
              ))}
           </div>
         </div>
       </main>
+
+      <TemplatePreview 
+        template={selectedPreview} 
+        onClose={() => setSelectedPreview(null)}
+        onCustomize={(t) => {
+          onLoadTemplate(t);
+          onStartDesigning();
+        }}
+      />
     </div>
   );
 };

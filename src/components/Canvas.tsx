@@ -9,7 +9,7 @@ import useImage from 'use-image';
 
 interface CanvasImageProps {
   element: CanvasElement;
-  onClick: () => void;
+  onClick: (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => void;
   onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onTransformEnd: (node: Konva.Node) => void;
 }
@@ -51,18 +51,24 @@ export const Canvas: React.FC = () => {
   const stageRef = useRef<Konva.Stage>(null);
 
   useEffect(() => {
-    if (transformerRef.current && selectedElementId) {
-      const stage = transformerRef.current.getStage();
-      const selectedNode = stage?.findOne(`#${selectedElementId}`);
-      
-      if (selectedNode) {
-        transformerRef.current.nodes([selectedNode]);
-        transformerRef.current.getLayer()?.batchDraw();
+    if (transformerRef.current) {
+      if (selectedElementId) {
+        const stage = transformerRef.current.getStage();
+        const selectedNode = stage?.findOne(`#${selectedElementId}`);
+        if (selectedNode) {
+          transformerRef.current.nodes([selectedNode]);
+          transformerRef.current.getLayer()?.batchDraw();
+        } else {
+          transformerRef.current.nodes([]);
+        }
+      } else {
+        transformerRef.current.nodes([]);
       }
     }
-  }, [selectedElementId]);
+  }, [selectedElementId, elements]);
 
-  const handleElementClick = (id: string) => {
+  const handleElementClick = (id: string, e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    e.cancelBubble = true; // Prevent stage click
     selectElement(id);
   };
 
@@ -73,13 +79,26 @@ export const Canvas: React.FC = () => {
     node.scaleX(1);
     node.scaleY(1);
 
-    updateElement(id, {
+    const updates: Partial<CanvasElement> = {
       x: node.x(),
       y: node.y(),
-      width: Math.max(5, (node.width() || 0) * scaleX),
-      height: Math.max(5, (node.height() || 0) * scaleY),
       rotation: node.rotation(),
-    });
+    };
+
+    if (node.width()) updates.width = Math.max(5, node.width() * scaleX);
+    if (node.height()) updates.height = Math.max(5, node.height() * scaleY);
+    
+    // Handle radius for circles, stars, polygons
+    interface RadiusNode extends Konva.Node {
+      radius: () => number;
+    }
+
+    if ('radius' in node && typeof (node as unknown as RadiusNode).radius === 'function') {
+      const currentRadius = (node as unknown as RadiusNode).radius();
+      updates.radius = Math.max(5, currentRadius * scaleX);
+    }
+
+    updateElement(id, updates);
   };
 
   const handleDragEnd = (id: string, e: Konva.KonvaEventObject<DragEvent>) => {
@@ -90,12 +109,15 @@ export const Canvas: React.FC = () => {
   };
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    if (e.target === e.target.getStage()) {
+    // Clicked on empty space
+    if (e.target === e.target.getStage() || e.target.getType() === 'Layer') {
       selectElement(null);
     }
   };
 
   const renderElement = (element: CanvasElement) => {
+    if (!element) return null;
+
     const commonProps = {
       id: element.id,
       key: element.id,
@@ -103,8 +125,8 @@ export const Canvas: React.FC = () => {
       y: element.y,
       rotation: element.rotation || 0,
       draggable: element.draggable !== false,
-      onClick: () => handleElementClick(element.id),
-      onTap: () => handleElementClick(element.id),
+      onClick: (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => handleElementClick(element.id, e),
+      onTap: (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => handleElementClick(element.id, e),
       onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) => handleDragEnd(element.id, e),
       onTransformEnd: (e: Konva.KonvaEventObject<Event>) => handleTransformEnd(element.id, e.target),
       opacity: element.opacity || 1,
@@ -167,7 +189,7 @@ export const Canvas: React.FC = () => {
           <CanvasImage 
             key={element.id}
             element={element}
-            onClick={() => handleElementClick(element.id)}
+            onClick={(e) => handleElementClick(element.id, e)}
             onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => handleDragEnd(element.id, e)}
             onTransformEnd={(node: Konva.Node) => handleTransformEnd(element.id, node)}
           />

@@ -10,7 +10,7 @@ import { LandingPage } from './components/LandingPage';
 import { useEditorStore } from './store/editorStore';
 
 function App() {
-  const { selectElement, deleteElement, currentView, setView } = useEditorStore();
+  const { selectElement, deleteElement, currentView, setView, loadTemplate } = useEditorStore();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -51,7 +51,12 @@ function App() {
   }, [selectElement, deleteElement, currentView]);
 
   if (currentView === 'landing') {
-    return <LandingPage onStartDesigning={() => setView('editor')} />;
+    return (
+      <LandingPage 
+        onStartDesigning={() => setView('editor')} 
+        onLoadTemplate={loadTemplate}
+      />
+    );
   }
 
   return (

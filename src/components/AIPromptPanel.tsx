@@ -57,6 +57,10 @@ export const AIPromptPanel: React.FC<AIPromptPanelProps> = ({ show, onClose }) =
       background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
 
+    // Clear existing elements and set view
+    useEditorStore.getState().clearCanvas();
+    useEditorStore.getState().setView('editor');
+    
     // Set canvas
     setCanvasSize(width, height);
     setCanvasBackground(background);

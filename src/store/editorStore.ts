@@ -66,6 +66,7 @@ interface EditorState {
   selectElement: (id: string | null) => void;
   
   duplicateElement: (id: string) => void;
+  alignElement: (id: string, alignment: 'center' | 'middle' | 'left' | 'right' | 'top' | 'bottom') => void;
   bringToFront: (id: string) => void;
   sendToBack: (id: string) => void;
   
@@ -175,6 +176,39 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
   },
   
+  alignElement: (id, alignment) => {
+    const { elements, canvasWidth, canvasHeight, updateElement } = get();
+    const element = elements.find((el) => el.id === id);
+    if (!element) return;
+
+    const updates: Partial<CanvasElement> = {};
+    const width = element.width || (element.radius ? element.radius * 2 : 100);
+    const height = element.height || (element.radius ? element.radius * 2 : 100);
+
+    switch (alignment) {
+      case 'center':
+        updates.x = (canvasWidth - width) / 2;
+        break;
+      case 'middle':
+        updates.y = (canvasHeight - height) / 2;
+        break;
+      case 'left':
+        updates.x = 0;
+        break;
+      case 'right':
+        updates.x = canvasWidth - width;
+        break;
+      case 'top':
+        updates.y = 0;
+        break;
+      case 'bottom':
+        updates.y = canvasHeight - height;
+        break;
+    }
+
+    updateElement(id, updates);
+  },
+  
   bringToFront: (id) => {
     set((state) => {
       const element = state.elements.find((el) => el.id === id);
@@ -249,12 +283,21 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   
   // Template actions
   loadTemplate: (template) => {
+    const newElements = template.elements.map((el) => ({ 
+      ...el, 
+      id: el.id.startsWith('temp-') ? el.id : `temp-${uuidv4()}` 
+    }));
+    
     set({
       canvasWidth: template.width,
       canvasHeight: template.height,
-      elements: template.elements.map((el) => ({ ...el, id: uuidv4() })),
+      elements: newElements,
       selectedElementId: null,
       showTemplates: false,
+      activePanel: null,
+      canvasScale: 0.6, // Start slightly zoomed out for better overview
+      history: [newElements],
+      historyStep: 0,
     });
   },
   
@@ -264,6 +307,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       selectedElementId: null,
       history: [[]],
       historyStep: 0,
+      canvasBackground: '#ffffff',
     });
   },
 }));

@@ -261,3 +261,28 @@ input[type="range"]::-webkit-slider-thumb {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
+
+/* Alignment Buttons */
+.align-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.align-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+.align-btn:active {
+  transform: translateY(0);
+}
