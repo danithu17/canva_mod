@@ -1,5 +1,5 @@
 import React from 'react';
-import { Square, Circle, Minus, Search } from 'lucide-react';
+import { Square, Circle, Minus, Search, Star, Triangle } from 'lucide-react';
 import { useEditorStore, type CanvasElement } from '../store/editorStore';
 
 export const ElementsPanel: React.FC = () => {
@@ -10,6 +10,8 @@ export const ElementsPanel: React.FC = () => {
   const shapes = [
     { type: 'rectangle' as const, icon: Square, label: 'Square', fill: '#8b5cf6' },
     { type: 'circle' as const, icon: Circle, label: 'Circle', fill: '#ec4899' },
+    { type: 'star' as const, icon: Star, label: 'Star', fill: '#f59e0b' },
+    { type: 'triangle' as const, icon: Triangle, label: 'Triangle', fill: '#10b981' },
     { type: 'line' as const, icon: Minus, label: 'Line', stroke: '#ffffff' },
   ];
 

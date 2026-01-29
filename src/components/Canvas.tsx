@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { 
   Stage, Layer, Rect, Circle, Text as KonvaText, 
-  Transformer, Line, Image as KonvaImage 
+  Transformer, Line, Image as KonvaImage, Star, RegularPolygon
 } from 'react-konva';
 import { useEditorStore, type CanvasElement } from '../store/editorStore';
 import Konva from 'konva';
@@ -170,6 +170,31 @@ export const Canvas: React.FC = () => {
             onClick={() => handleElementClick(element.id)}
             onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => handleDragEnd(element.id, e)}
             onTransformEnd={(node: Konva.Node) => handleTransformEnd(element.id, node)}
+          />
+        );
+
+      case 'star':
+        return (
+          <Star
+            {...commonProps}
+            numPoints={5}
+            innerRadius={element.radius ? element.radius / 2 : 25}
+            outerRadius={element.radius || 50}
+            fill={element.fill || '#f59e0b'}
+            stroke={element.stroke}
+            strokeWidth={element.strokeWidth || 0}
+          />
+        );
+
+      case 'triangle':
+        return (
+          <RegularPolygon
+            {...commonProps}
+            sides={3}
+            radius={element.radius || 50}
+            fill={element.fill || '#10b981'}
+            stroke={element.stroke}
+            strokeWidth={element.strokeWidth || 0}
           />
         );
 

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface CanvasElement {
   id: string;
-  type: 'text' | 'rectangle' | 'circle' | 'image' | 'line';
+  type: 'text' | 'rectangle' | 'circle' | 'image' | 'line' | 'star' | 'triangle';
   x: number;
   y: number;
   width?: number;

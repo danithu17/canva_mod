@@ -12,6 +12,7 @@ export const Toolbar: React.FC = () => {
   const {
     selectedElementId, deleteElement, duplicateElement, 
     undo, redo, setView, canvasWidth, canvasHeight,
+    canvasScale, setCanvasScale,
   } = useEditorStore();
 
   const handleExport = () => {
@@ -128,6 +129,29 @@ export const Toolbar: React.FC = () => {
           />
           <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', background: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>
             {canvasWidth} × {canvasHeight}
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '4px',
+            marginLeft: '8px',
+            background: 'var(--bg-secondary)',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            border: '1px solid var(--border-primary)'
+          }}>
+            <button 
+              onClick={() => setCanvasScale(Math.max(0.1, canvasScale - 0.1))}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px' }}
+            >−</button>
+            <span style={{ fontSize: '12px', color: 'var(--text-primary)', minWidth: '40px', textAlign: 'center' }}>
+              {Math.round(canvasScale * 100)}%
+            </span>
+            <button 
+              onClick={() => setCanvasScale(Math.min(3, canvasScale + 0.1))}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px' }}
+            >+</button>
           </div>
         </div>
 
